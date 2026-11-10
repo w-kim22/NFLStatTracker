@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NFL Season Tracker · Pro Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;800;900&family=Tourney:ital,wght@0,800;1,900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-grad-1: #0d1b2a;
+  --bg-grad-2: #1b263b;
+  --bg-grad-3: #2d3142;
+  --surface: rgba(27, 38, 59, 0.85);
+  --surface-card: rgba(13, 27, 42, 0.95);
+  --text: #ffffff;
+  --muted: #cbd5e1;
+  --border: rgba(56, 189, 248, 0.4);
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.45);
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #facc15;
+  color-scheme: dark;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 20px 12px;
+  background: linear-gradient(135deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 50%, var(--bg-grad-3) 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.container { max-width: 1100px; margin: auto; width: 100%; }
+
+/* Header */
+header {
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, rgba(27, 38, 59, 0.95) 0%, rgba(13, 27, 42, 0.95) 100%);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 28px;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), 0 0 30px var(--accent-glow);
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 6px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #ec4899, #facc15);
+}
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+header h1 { 
+  margin: 0; 
+  font-family: 'Tourney', sans-serif; 
+  font-size: clamp(28px, 6vw, 48px); 
+  font-weight: 900; 
+  letter-spacing: 0.03em; 
+  display: flex; 
+  align-items: center; 
+  gap: 14px; 
+  text-transform: uppercase; 
+  text-shadow: 0 4px 15px rgba(56,189,248,0.5);
+  word-break: break-word;
+}
+header h1 span.logo-icon {
+  display: inline-flex; width: 54px; height: 54px; background: linear-gradient(135deg, #38bdf8, #6366f1); color: #fff;
+  border-radius: 14px; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; flex-shrink: 0;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
+}
+header p { color: var(--muted); font-size: clamp(14px, 2.5vw, 18px); margin: 8px 0 0; font-weight: 600; }
+
+/* Panels & Cards */
+.panel {
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  width: 100%;
+}
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+label { color: var(--muted); font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+select, button {
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  background: rgba(13, 27, 42, 0.95);
+  color: var(--text);
+  border-radius: 14px;
+  font-size: clamp(15px, 2.2vw, 18px);
+  font-family: inherit;
+  font-weight: 700;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+select:hover, select:focus { border-color: #38bdf8; outline: none; box-shadow: 0 0 0 4px var(--accent-glow); }
+button {
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  width: auto;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 16px;
+}
+button:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5); }
+
+/* Section Headings */
+h2 { 
+  font-family: 'Tourney', sans-serif; 
+  font-size: clamp(24px, 5vw, 36px); 
+  font-weight: 900; 
+  margin: 36px 0 18px; 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  letter-spacing: 0.03em; 
+  text-transform: uppercase; 
+  color: #ffffff; 
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  word-break: break-word;
+}
+h2::before { content: ''; width: 8px; height: 32px; background: linear-gradient(to bottom, #38bdf8, #ec4899); border-radius: 4px; flex-shrink: 0; }
+
+.note { color: var(--muted); font-size: 14px; line-height: 1.5; font-weight: 600; }
+.err { color: var(--red); font-size: 16px; font-weight: 800; padding: 16px; background: rgba(251, 113, 133, 0.2); border-radius: 14px; margin-top: 14px; border: 2px solid rgba(251, 113, 133, 0.4); }
+
+/* Current Week Matchups */
+.week-range-banner {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: clamp(13px, 2vw, 16px); color: var(--muted);
+  background: var(--surface-card); padding: 16px 20px; border-radius: 14px; border: 2px solid var(--border); font-weight: 700; flex-wrap: wrap; gap: 8px;
+}
+.matchup-scroller { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
+.matchup-item {
+  background: var(--surface-card); border: 2px solid var(--border); border-radius: 16px; padding: 20px;
+  display: flex; flex-direction: column; gap: 16px; transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.matchup-item:hover { border-color: #38bdf8; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(56,189,248,0.3); }
+.matchup-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); font-weight: 800; text-transform: uppercase; }
+.matchup-teams { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.m-team { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.m-team.away { justify-content: flex-end; text-align: right; }
+.m-team-name { font-weight: 800; font-size: clamp(14px, 2vw, 17px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-score { font-size: clamp(18px, 3vw, 24px); font-weight: 900; padding: 6px 14px; background: rgba(27, 38, 59, 0.95); border-radius: 12px; border: 2px solid var(--border); letter-spacing: 0.05em; font-family: 'Tourney', sans-serif; flex-shrink: 0; }
+.status-pill { font-size: 12px; font-weight: 900; padding: 5px 14px; border-radius: 16px; text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0; }
+.status-pill.final { background: rgba(52, 211, 153, 0.25); color: var(--green); border: 2px solid rgba(52, 211, 153, 0.5); }
+.status-pill.upcoming { background: rgba(56, 189, 248, 0.25); color: var(--accent); border: 2px solid rgba(56, 189, 248, 0.5); }
+
+/* Card with Faded Background Logo Pseudo-element */
+.card {
+  background: var(--surface-card);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 26px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+}
+
+/* Green border for Favorite, Red border for Rival */
+.card.card-fav { border-left: 8px solid var(--green); }
+.card.card-least { border-left: 8px solid var(--red); }
+
+/* Large faded logo watermark positioned on the right */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -5%;
+  transform: translateY(-50%);
+  width: 280px;
+  height: 280px;
+  background-image: var(--bg-logo);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center right;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card > * { position: relative; z-index: 1; }
+
+.banner {
+  margin: -26px -26px 20px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid rgba(255,255,255,0.2);
+  flex-wrap: wrap; gap: 12px;
+}
+.team-title-wrap { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.team-logo { width: clamp(50px, 8vw, 70px); height: clamp(50px, 8vw, 70px); object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); flex-shrink: 0; }
+.team-logo-fallback {
+  width: clamp(50px, 8vw, 70px); height: clamp(50px, 8vw, 70px); border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.6); flex-shrink: 0;
+}
+.tag { font-size: 13px; letter-spacing: 0.15em; font-weight: 900; text-transform: uppercase; opacity: 0.95; }
+.record { font-size: clamp(36px, 7vw, 54px); font-family: 'Tourney', sans-serif; font-weight: 900; margin: 6px 0 4px; letter-spacing: 0.02em; word-break: break-word; }
+.sub { color: var(--muted); font-size: clamp(13px, 2vw, 16px); margin-bottom: 20px; font-weight: 700; line-height: 1.4; }
+
+/* Stat Tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.tile { background: rgba(27, 38, 59, 0.85); border: 2px solid var(--border); border-radius: 14px; padding: 16px 12px; text-align: center; }
+.tile strong { display: block; font-size: clamp(20px, 4vw, 28px); font-family: 'Tourney', sans-serif; font-weight: 900; color: var(--text); letter-spacing: 0.03em; }
+.tile span { font-size: 11px; color: var(--muted); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; display: block; }
+
+/* Logs */
+.log { max-height: 340px; overflow-y: auto; border-top: 2px solid var(--border); padding-top: 10px; }
+.g { font-size: clamp(13px, 2vw, 16px); padding: 12px 0; border-bottom: 1px solid rgba(56, 189, 248, 0.2); display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 600; flex-wrap: wrap; }
+.g.up { color: var(--muted); }
+.W { color: var(--green); font-weight: 900; font-size: 18px; }
+.L { color: var(--red); font-weight: 900; font-size: 18px; }
+.T { color: var(--yellow); font-weight: 900; font-size: 18px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 24px; font-weight: 800; font-size: clamp(12px, 2vw, 15px); }
+.chip img { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; width: 100%; }
+table { width: 100%; border-collapse: collapse; font-size: clamp(13px, 2.2vw, 17px); min-width: 480px; }
+th, td { text-align: left; padding: 16px 12px; border-bottom: 2px solid var(--border); font-weight: 700; }
+th { color: var(--muted); font-weight: 900; text-transform: uppercase; font-size: 13px; letter-spacing: 0.08em; }
+
+.empty, .err-state { text-align: center; padding: 32px; font-size: 16px; color: var(--muted); font-weight: 700; }
+.pred { background: var(--surface-card); border: 2px solid var(--border); padding: 28px; border-radius: 18px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); position: relative; overflow: hidden; }
+.score { font-size: clamp(28px, 6vw, 48px); font-family: 'Tourney', sans-serif; font-weight: 900; margin: 16px 0; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; letter-spacing: 0.03em; word-break: break-word; }
+ul { color: var(--muted); font-size: 14px; padding-left: 22px; margin: 10px 0 0; line-height: 1.6; font-weight: 600; }
+
+@media (max-width: 600px) {
+  body { padding: 12px 6px; }
+  .panel, .card, header { padding: 18px; border-radius: 16px; }
+  .banner { margin: -18px -18px 16px; padding: 16px 18px; }
+  .tiles { grid-template-columns: repeat(2, 1fr); }
+  .score { font-size: 28px; }
+  .card::before { width: 180px; height: 180px; right: -10%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div class="header-top">
+    <div>
+      <h1><span class="logo-icon">⚡</span> NFL Season Tracker</h1>
+      <p id="status">Loading live season analytics & schedule data…</p>
+    </div>
+  </div>
+</header>
+
+<section class="panel">
+<div class="grid3">
+  <div class="field"><label for="season">Season Year</label><select id="season"></select></div>
+  <div class="field"><label for="fav">Favorite Team</label><select id="fav"></select></div>
+  <div class="field"><label for="least">Rival / Least Favorite</label><select id="least"></select></div>
+</div>
+<div id="msg" class="err" role="alert" style="display:none"></div>
+<p class="note" style="margin-top: 16px;">Data powered by nflverse (free public analytics). Team assets & schedule synced securely via Netlify serverless functions.</p>
+</section>
+
+<!-- Current Calendar Week Matchups -->
+<section class="panel" id="current-week-section">
+  <h2 style="margin-top:0">This Week's Matchups (Current Calendar Week)</h2>
+  <div class="week-range-banner" id="week-range-label">Calculating current week range…</div>
+  <div class="matchup-scroller" id="current-week-matchups">
+    <div class="empty">Loading current week games…</div>
+  </div>
+</section>
+
+<div id="out" style="display:none">
+  <div class="grid" id="cards"></div>
+  
+  <h2>Head-to-Head Comparison</h2>
+  <div class="panel">
+    <div class="table-wrap" id="compare"></div>
+    <div id="series"></div>
+  </div>
+  
+  <h2>Matchup Simulator & Prediction</h2>
+  <div class="panel">
+    <div class="grid2" style="margin-bottom: 18px;">
+      <div class="field">
+        <label for="simTeamA">Team A (Home / Away)</label>
+        <select id="simTeamA"></select>
+      </div>
+      <div class="field">
+        <label for="simTeamB">Team B (Opponent)</label>
+        <select id="simTeamB"></select>
+      </div>
+    </div>
+    <div class="field" style="max-width: 380px; margin-bottom: 18px;">
+      <label for="where">Venue Location</label>
+      <select id="where">
+        <option value="a">At Team A's Home Stadium</option>
+        <option value="b">At Team B's Home Stadium</option>
+      </select>
+    </div>
+    <div id="matchup"></div>
+    <h3 style="margin:22px 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted)">Simulation Model Assumptions</h3>
+    <ul id="ign"></ul>
+  </div>
+</div>
+</div>
+
+<script>
+const ENDPOINT = "/.netlify/functions/games";
+const KEY = "nflSeason_v1";
+const HOME_ADV = 1.5, SHRINK = 3;
+const IGNORES = [
+  "Injuries, roster changes and active player availability",
+  "Weather conditions, travel distance and rest day differentials",
+  "Coaching adjustments, tactical matchups and weekly turnover variance",
+  "Playoff seeding implications, resting starters and late-season motivation"
+];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const LOGO_MAP = {
+  ARI:'ari', ATL:'atl', BAL:'bal', BUF:'buf', CAR:'car', CHI:'chi',
+  CIN:'cin', CLE:'cle', DAL:'dal', DEN:'den', DET:'det', GB:'gb',
+  HOU:'hou', IND:'ind', JAX:'jax', KC:'kc', LV:'lv', LAC:'lac',
+  LA:'lar', MIA:'mia', MIN:'min', NE:'ne', NO:'no', NYG:'nyg',
+  NYJ:'nyj', PHI:'phi', PIT:'pit', SF:'sf', SEA:'sea', TB:'tb',
+  TEN:'ten', WAS:'wsh'
+};
+
+const TI = {};
+"ARI|Arizona Cardinals|97233F|FFB612;ATL|Atlanta Falcons|A71930|000000;BAL|Baltimore Ravens|241773|9E7C0C;BUF|Buffalo Bills|00338D|C60C30;CAR|Carolina Panthers|0085CA|101820;CHI|Chicago Bears|0B162A|C83803;CIN|Cincinnati Bengals|FB4F14|000000;CLE|Cleveland Browns|311D00|FF3C00;DAL|Dallas Cowboys|003594|869397;DEN|Denver Broncos|FB4F14|002244;DET|Detroit Lions|0076B6|B0B7BC;GB|Green Bay Packers|203731|FFB612;HOU|Houston Texans|03202F|A71930;IND|Indianapolis Colts|002C5F|A2AAAD;JAX|Jacksonville Jaguars|006778|D7A22A;KC|Kansas City Chiefs|E31837|FFB81C;LV|Las Vegas Raiders|000000|A5ACAF;LAC|Los Angeles Chargers|0080C6|FFC20E;LA|Los Angeles Rams|003594|FFA300;MIA|Miami Dolphins|008E97|FC4C02;MIN|Minnesota Vikings|4F2683|FFC62F;NE|New England Patriots|002244|C60C30;NO|New Orleans Saints|D3BC8D|101820;NYG|New York Giants|0B2265|A71930;NYJ|New York Jets|125740|000000;PHI|Philadelphia Eagles|004C54|A5ACAF;PIT|Pittsburgh Steelers|FFB612|101820;SF|San Francisco 49ers|AA0000|B3995D;SEA|Seattle Seahawks|002244|69BE28;TB|Tampa Bay Buccaneers|D50A0A|FF7900;TEN|Tennessee Titans|0C2340|4B92DB;WAS|Washington Commanders|5A1414|FFB612".split(";").forEach(s=>{const p=s.split("|");TI[p[0]]={name:p[1],c:["#"+p[2],"#"+p[3]]}});
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+const avg = l => l.reduce((s,n)=>s+n,0)/l.length;
+const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+const info = ab => TI[ab] || {name:ab, c:["#38bdf8","#1e293b"]};
+const nick = ab => info(ab).name.split(" ").pop();
+
+function getLogoUrl(ab) {
+  const code = LOGO_MAP[ab] || ab.toLowerCase();
+  return `https://a.espncdn.com/i/teamlogos/nfl/50/${code}.png`;
+}
+
+function getLogo(ab) {
+  const url = getLogoUrl(ab);
+  const i = info(ab);
+  return `<img src="${url}" alt="${esc(ab)}" class="team-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` +
+         `<div class="team-logo-fallback" style="background:${i.c[0]};color:#fff;display:none">${esc(ab)}</div>`;
+}
+
+function ink(h) {
+  try {
+    const n = parseInt(h.slice(1), 16), f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+    return .2126 * f(n >> 16) + .7152 * f(n >> 8 & 255) + .0722 * f(n & 255) > .4 ? "#101820" : "#ffffff";
+  } catch(e) { return "#ffffff"; }
+}
+
+const chipT = (ab, t) => `<span class="chip" style="background:${info(ab).c[0]};color:${ink(info(ab).c[0])}">${getLogo(ab)}${esc(t)}</span>`;
+const fmtDate = d => { const p = String(d).split("-"); return p.length === 3 ? MONTHS[+p[1]-1]+" "+(+p[2]) : esc(d); };
+const ord = n => n + (["th","st","nd","rd"][(n%100>10&&n%100<14)?0:Math.min(n%10,4)%4]||"th");
+
+let G = [], S = {}, R = null, seasons = [], season = 0, lastWeek = 0, currentWeekGames = [];
+
+function compute() {
+  S = {};
+  const t = ab => S[ab] || (S[ab] = {ab, log:[], up:[]});
+  G.forEach(g => {
+    const done = g.homeScore !== null && g.awayScore !== null;
+    [[g.home, g.away, true, g.homeScore, g.awayScore], [g.away, g.home, false, g.awayScore, g.homeScore]].forEach(([ab, opp, home, pf, pa]) => {
+      (done ? t(ab).log : t(ab).up).push({week: g.week, date: g.date, type: g.type, opp, home, pf, pa});
+    });
+  });
+  const cmp = (a, b) => a.date.localeCompare(b.date);
+  const all = Object.values(S);
+  let sum = 0, cnt = 0;
+  all.forEach(s => {
+    s.log.sort(cmp); s.up.sort(cmp);
+    s.n = s.log.length; s.w = s.l = s.t = s.pf = s.pa = 0; s.hw = s.hl = s.aw = s.al = 0;
+    s.log.forEach(e => {
+      s.pf += e.pf; s.pa += e.pa; sum += e.pf; cnt++;
+      if(e.pf > e.pa) { s.w++; e.home ? s.hw++ : s.aw++; }
+      else if(e.pf < e.pa) { s.l++; e.home ? s.hl++ : s.al++; }
+      else s.t++;
+    });
+    const res = s.log.map(e => e.pf > e.pa ? "W" : e.pf < e.pa ? "L" : "T");
+    s.last5 = res.slice(-5).join("");
+    let k = 0; while(k < res.length && res[res.length - 1 - k] === res[res.length - 1]) k++;
+    s.streak = res.length ? res[res.length - 1] + k : "–";
+    s.pct = s.n ? (s.w + s.t / 2) / s.n : 0;
+  });
+  all.filter(s => s.n).sort((a,b) => b.pct - a.pct || (b.pf - b.pa) - (a.pf - a.pa)).forEach((s,i,arr) => { s.rank = i+1; s.of = arr.length; });
+  
+  const mu = cnt ? sum / cnt : 22;
+  let off = {}, def = {}; all.forEach(s => { off[s.ab] = 0; def[s.ab] = 0; });
+  for(let i = 0; i < 25; i++) {
+    const no = {}, nd = {};
+    all.forEach(s => {
+      let o = 0, d = 0;
+      s.log.forEach(e => { o += e.pf - mu - def[e.opp]; d += e.pa - mu - off[e.opp]; });
+      no[s.ab] = o / (s.n + SHRINK); nd[s.ab] = d / (s.n + SHRINK);
+    });
+    off = no; def = nd;
+  }
+  R = {mu, off, def};
+  lastWeek = G.reduce((m,g) => g.homeScore !== null ? Math.max(m, g.week) : m, 0);
+}
+
+function predict(a, b, aHome) {
+  const A = S[a], B = S[b];
+  if(!A || !B || !A.n || !B.n) return {error: "Teams require completed games for statistical projection."};
+  const form = s => clamp(.25 * (avg(s.log.slice(-3).map(e => e.pf - e.pa)) - (s.pf - s.pa) / s.n), -3, 3);
+  let pa = R.mu + R.off[a] + R.def[b] + form(A), pb = R.mu + R.off[b] + R.def[a] + form(B);
+  if(aHome) pa += HOME_ADV; else pb += HOME_ADV;
+  pa = Math.max(0, pa); pb = Math.max(0, pb);
+  const n = Math.min(A.n, B.n), margin = pa - pb;
+  const sc = .6 * (Math.min(n, 8) / 8) + .4 * (Math.min(Math.abs(margin), 10) / 10);
+  return {pa, pb, margin, n, conf: sc < .35 ? "Low" : sc < .65 ? "Medium" : "High"};
+}
+
+function projected(s) {
+  let w = s.w, l = s.l; const t = s.t;
+  s.up.forEach(e => {
+    const p = predict(s.ab, e.opp, e.home);
+    if(p.error) return;
+    if(p.margin >= 0) w++; else l++;
+  });
+  return `${w}-${l}${t?"-"+t:""}`;
+}
+const rec = s => `${s.w}-${s.l}${s.t?"-"+s.t:""}`;
+
+function renderCurrentWeek() {
+  const container = $("current-week-matchups");
+  const rangeLabel = $("week-range-label");
+  if(!G.length) {
+    container.innerHTML = '<div class="empty">No game schedule loaded.</div>';
+    rangeLabel.textContent = "Current Week: N/A";
+    return;
+  }
+
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMon = now.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(now.setDate(diffToMon));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+
+  rangeLabel.innerHTML = `Current Calendar Week: <strong>${MONTHS[monday.getMonth()]} ${monday.getDate()} – ${MONTHS[sunday.getMonth()]} ${sunday.getDate()}, ${sunday.getFullYear()}</strong>`;
+
+  let weekGames = G.filter(g => {
+    const gd = new Date(g.date);
+    return gd >= monday && gd <= sunday;
+  });
+
+  if(!weekGames.length && lastWeek > 0) {
+    weekGames = G.filter(g => g.week === lastWeek);
+    rangeLabel.innerHTML += ` <span style="color:var(--accent); margin-left:8px;">(Showing Week ${lastWeek} games)</span>`;
+  }
+
+  currentWeekGames = weekGames;
+
+  if(!weekGames.length) {
+    container.innerHTML = '<div class="empty">No games scheduled for the current calendar week.</div>';
+    return;
+  }
+
+  container.innerHTML = weekGames.map(g => {
+    const done = g.homeScore !== null && g.awayScore !== null;
+    const homeInfo = info(g.home), awayInfo = info(g.away);
+    return `
+      <div class="matchup-item">
+        <div class="matchup-header">
+          <span>Wk ${g.week} · ${fmtDate(g.date)}</span>
+          <span class="status-pill ${done ? 'final' : 'upcoming'}">${done ? 'Final' : 'Upcoming'}</span>
+        </div>
+        <div class="matchup-teams">
+          <div class="m-team away">
+            <span class="m-team-name">${esc(awayInfo.name)}</span>
+            ${getLogo(g.away)}
+          </div>
+          <div class="m-score">${done ? `${g.awayScore} - ${g.homeScore}` : 'VS'}</div>
+          <div class="m-team home">
+            ${getLogo(g.home)}
+            <span class="m-team-name">${esc(homeInfo.name)}</span>
+          </div>
+        </div>
+        <div class="note" style="text-align:center">${done ? 'Matchup completed' : 'Scheduled kickoff'}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function card(ab, kind) {
+  const s = S[ab], i = info(ab), c = i.c;
+  const logoUrl = getLogoUrl(ab);
+  const wk = e => `Wk ${e.week}${e.type&&e.type!=="REG"?" ("+esc(e.type)+")":""} · ${fmtDate(e.date)}`;
+  const logRows = s.log.map(e => {
+    const r = e.pf > e.pa ? "W" : e.pf < e.pa ? "L" : "T";
+    return `<div class="g"><span>${wk(e)} | ${e.home?"vs":"@"} ${esc(info(e.opp).name)}</span> <span style="display:flex;align-items:center;gap:6px"><span class="${r}">${r}</span> ${chipT(ab, e.pf+"-"+e.pa)}</span></div>`;
+  });
+  const upRows = s.up.map(e => {
+    const p = predict(ab, e.opp, e.home);
+    const body = p.error ? "no projection" : `proj ${chipT(ab, Math.round(p.pa))} vs ${chipT(e.opp, Math.round(p.pb))} <span class="note">(${p.conf})</span>`;
+    return `<div class="g up"><span>${wk(e)} | ${e.home?"vs":"@"} ${esc(info(e.opp).name)}</span> <span>${body}</span></div>`;
+  });
+  const tile = (v, l) => `<div class="tile"><strong>${v}</strong><span>${l}</span></div>`;
+  const diff = s.pf - s.pa;
+  const cardClass = kind === "fav" ? "card card-fav" : "card card-least";
+  
+  return `
+    <div class="${cardClass}" style="--bg-logo: url('${logoUrl}');">
+      <div class="banner" style="background:${c[0]};color:${ink(c[0])}">
+        <div class="team-title-wrap">
+          ${getLogo(ab)}
+          <div>
+            <div class="tag">${kind==="fav" ? "Favorite Team" : "Rival / Least Favorite"}</div>
+            <h3 style="margin:2px 0 0; font-size:clamp(18px, 3vw, 24px); font-weight:900;">${esc(i.name)}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="record">${rec(s)}</div>
+      <div class="sub">${s.n ? `League Rank ${ord(s.rank)} of ${s.of} · Streak ${s.streak} · Last 5: ${s.last5}` : "No games played yet"}${s.up.length ? ` · Proj Finish ${projected(s)}` : ""}</div>
+      <div class="tiles">${tile(s.pf,"Points For")}${tile(s.pa,"Points Against")}${tile((diff>0?"+":"")+diff,"Differential")}${tile(s.n?(s.pf/s.n).toFixed(1):"–","Avg Scored")}${tile(s.n?(s.pa/s.n).toFixed(1):"–","Avg Allowed")}${tile(`${s.hw}-${s.hl}`,"Home")}${tile(`${s.aw}-${s.al}`,"Away")}${tile(s.n?(s.pct*100).toFixed(1)+"%":"–","Win %")}</div>
+      <div class="note" style="margin-bottom:8px; font-weight:800;">Season Log (${s.n} played, ${s.up.length} remaining)</div>
+      <div class="log">${logRows.join("") + upRows.join("") || '<div class="g">No games found.</div>'}</div>
+    </div>
+  `;
+}
+
+function compare(f, l) {
+  const a = S[f], b = S[l], cell = (s, fn) => s.n ? fn(s) : "–";
+  const rows = [
+    ["Record", rec(a), rec(b)],
+    ["League Rank", cell(a, s => ord(s.rank)+" of "+s.of), cell(b, s => ord(s.rank)+" of "+s.of)],
+    ["Projected Finish", projected(a), projected(b)],
+    ["Games Played", a.n, b.n],
+    ["Avg Points Scored", cell(a, s => (s.pf/s.n).toFixed(1)), cell(b, s => (s.pf/s.n).toFixed(1))],
+    ["Avg Points Allowed", cell(a, s => (s.pa/s.n).toFixed(1)), cell(b, s => (s.pa/s.n).toFixed(1))],
+    ["Point Differential", a.pf-a.pa, b.pf-b.pa],
+    ["Home / Away Record", `${a.hw}-${a.hl} / ${a.aw}-${a.al}`, `${b.hw}-${b.hl} / ${b.aw}-${b.al}`],
+    ["Last 5 Form", a.last5 || "–", b.last5 || "–"]
+  ];
+  const th = ab => `<th style="background:${info(ab).c[0]};color:${ink(info(ab).c[0])}"><div style="display:flex;align-items:center;gap:10px">${getLogo(ab)} ${esc(info(ab).name)}</div></th>`;
+  return `<table><thead><tr><th>Metric</th>${th(f)}${th(l)}</tr></thead><tbody>${rows.map(r=>`<tr><td style="font-weight:800;color:var(--muted)">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table>`;
+}
+
+function series(f, l) {
+  const gs = G.filter(g => (g.home === f && g.away === l) || (g.home === l && g.away === f)).sort((a,b) => a.date.localeCompare(b.date));
+  if(!gs.length) return '<p class="note" style="margin-top:16px">These teams do not play each other in the selected season.</p>';
+  return '<p class="note" style="margin-top:18px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em">Head-to-Head Season Series</p>' + gs.map(g => {
+    const done = g.homeScore !== null && g.awayScore !== null;
+    return `<div class="g"><span>Wk ${g.week} · ${fmtDate(g.date)}</span> <span>${done ? `${chipT(g.away, g.awayScore)} @ ${chipT(g.home, g.homeScore)}` : `${esc(g.away)} at ${esc(g.home)} (Upcoming)`}</span></div>`;
+  }).join("");
+}
+
+function matchupSim() {
+  const a = $("simTeamA").value, b = $("simTeamB").value;
+  const aHome = $("where").value === "a";
+  const container = $("matchup");
+
+  if(!a || !b) {
+    container.innerHTML = '<div class="empty">Select two teams to run simulation.</div>';
+    return;
+  }
+  if(a === b) {
+    container.innerHTML = '<div class="empty">Please select two different teams for the simulation.</div>';
+    return;
+  }
+
+  const p = predict(a, b, aHome);
+  if(p.error) { container.innerHTML = `<div class="empty">${p.error}</div>`; return; }
+  
+  const sa = Math.round(p.pa), sb = Math.round(p.pb);
+  const w = sa > sb ? `${esc(info(a).name)} Projected Winner` : sb > sa ? `${esc(info(b).name)} Projected Winner` : "Even Matchup";
+  
+  container.innerHTML = `
+    <div class="pred">
+      <div class="note" style="font-size:15px; font-weight:700;">Simulated Outcome (${esc(info(aHome ? a : b).name)} hosting)</div>
+      <div class="score">${chipT(a, nick(a)+" "+sa)} <span style="font-size:22px; color:var(--muted); font-weight:700;">vs</span> ${chipT(b, nick(b)+" "+sb)}</div>
+      <div style="font-weight:900; color:var(--accent); font-size:clamp(18px, 3.5vw, 26px); margin-bottom:10px;">${w}</div>
+      <div class="note">Model Confidence: <strong>${p.conf}</strong> (Sample size: ${p.n} games evaluated, projected margin: ${Math.abs(p.margin).toFixed(1)} pts). Powered by opponent-adjusted scoring and recent form.</div>
+    </div>
+  `;
+}
+
+function saved() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) { return {}; } }
+function persist() { try { localStorage.setItem(KEY, JSON.stringify({fav:$("fav").value, least:$("least").value})) } catch(e) {} }
+
+function render() {
+  const f = $("fav").value, l = $("least").value;
+  $("out").style.display = "none";
+  if(!f || !l) { $("msg").style.display = "block"; $("msg").textContent = "Please select both your favorite team and rival team."; return; }
+  if(f === l) { $("msg").style.display = "block"; $("msg").textContent = "Please choose two different teams."; return; }
+  $("msg").style.display = "none";
+  $("out").style.display = "block";
+  $("cards").innerHTML = card(f, "fav") + card(l, "least");
+  $("compare").innerHTML = compare(f, l);
+  $("series").innerHTML = series(f, l);
+  matchupSim();
+  persist();
+}
+
+function fillSelects() {
+  const teams = Object.keys(S).sort((a,b) => info(a).name.localeCompare(info(b).name));
+  const opts = '<option value="">Select a team…</option>' + teams.map(ab => `<option value="${esc(ab)}">${esc(info(ab).name)}</option>`).join("");
+  
+  $("fav").innerHTML = opts; 
+  $("least").innerHTML = opts;
+  $("simTeamA").innerHTML = opts;
+  $("simTeamB").innerHTML = opts;
+
+  const sv = saved();
+  const pick = (id, def) => { const v = [sv[id], def].find(x => x && S[x]); if(v) $(id).value = v; };
+  
+  pick("fav", "ATL"); 
+  pick("least", "NO");
+  
+  let simA = "KC", simB = "SF";
+  if(currentWeekGames && currentWeekGames.length > 0) {
+    simA = currentWeekGames[0].home;
+    simB = currentWeekGames[0].away;
+  }
+  pick("simTeamA", simA);
+  pick("simTeamB", simB);
+
+  $("season").innerHTML = seasons.map(y => `<option value="${y}">${y}</option>`).join("");
+  $("season").value = String(season);
+}
+
+async function load(requested) {
+  $("status").textContent = "Loading season data from Netlify function…";
+  $("msg").style.display = "none";
+  try {
+    const r = await fetch(ENDPOINT + (requested ? "?season=" + requested : ""));
+    const d = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(d.error || "HTTP "+r.status);
+    G = d.games; seasons = d.seasons; season = d.season;
+    compute();
+    renderCurrentWeek();
+    fillSelects();
+    const played = G.filter(g => g.homeScore !== null).length;
+    $("status").textContent = `Season ${season} · ${played} of ${G.length} games recorded${lastWeek ? " · Through Week "+lastWeek : ""} · Source: ${d.source}`;
+    render();
+  } catch(e) {
+    $("out").style.display = "none";
+    $("current-week-section").style.display = "none";
+    $("status").textContent = "Connection error";
+    $("msg").style.display = "block";
+    $("msg").innerHTML = `Couldn’t load season data (${esc(e.message)}). Ensure your Netlify function is running locally via <code>netlify dev</code>.<br><button id="retry" type="button" style="margin-top:10px">Retry Connection</button>`;
+    $("retry").addEventListener("click", () => load(requested));
+  }
+}
+
+$("ign").innerHTML = IGNORES.map(i => `<li>${i}</li>`).join("");
+["fav", "least"].forEach(id => $(id).addEventListener("change", render));
+["simTeamA", "simTeamB", "where"].forEach(id => $(id).addEventListener("change", matchupSim));
+$("season").addEventListener("change", () => load(Number($("season").value)));
+load();
+</script>
+</body>
+</html>
