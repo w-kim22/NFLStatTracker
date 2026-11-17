@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NFL Season Tracker · Pro Analytics</title>
+<meta name="theme-color" content="#011f36">
+<meta name="description" content="NFL season tracker: compare your favorite and rival teams, view this week's matchups and run score projections.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
 <style>
 /* ═══════════════════════════════════════════════
    THEME SYSTEM
@@ -832,9 +835,76 @@ select:focus-visible, button:focus-visible, input:focus-visible, a:focus-visible
   .brand-name { font-size: 13px; }
   .theme-team-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══════════ RELEASE FIXES ═══════════ */
+
+/* 1 · Card borders: green = favorite, red = least favorite */
+:root { --fav: #16a34a; --least: #dc2626; --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23034f84' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); }
+[data-theme="midnight"] { --fav: #22c55e; --least: #ef4444; --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23b9c9da' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); }
+.card.card-fav   { border: 1.5px solid var(--fav);   border-top-width: 4px; }
+.card.card-least { border: 1.5px solid var(--least); border-top-width: 4px; }
+
+/* 2 · Select arrow no longer disappears on hover/focus; visible in dark theme */
+select, select:hover, select:focus { background-image: var(--select-arrow); background-repeat: no-repeat; background-position: right 12px center; }
+
+/* 3 · Contrast: dark text on coral, darker muted text, readable L badge/pills */
+:root:not([data-theme]) { --accent-ink: #011f36; --brand-mark-ink: #011f36; --ink-3: #4d667d; --nav-ink-3: rgba(146,168,209,0.92); }
+[data-theme="sepia"]  { --ink-3: #6f5c45; }
+[data-theme="forest"] { --ink-3: #526b4c; }
+[data-theme="ocean"]  { --ink-3: #46647f; }
+[data-theme="sunset"] { --ink-3: #84523f; --accent: #c9442a; --brand-mark-bg: #c9442a; }
+.L { color: #c43a2a; }
+[data-theme="midnight"] .L { color: var(--accent); }
+.status-pill.final { color: var(--pal-3); }
+:root:not([data-theme]) .pred div[style*="var(--accent)"],
+:root:not([data-theme]) .week-range-banner span[style*="var(--accent)"] { color: #c43a2a !important; }
+
+/* 4 · Readable type sizes (nothing below 10px) */
+.tile span { font-size: 10px; }
+.tile strong { font-size: 15px; }
+label, .palette-field label, .custom-palette h3 { font-size: 11px; }
+.nav-label, .sidebar-status-label, .page-meta-item .k, .tag, .status-pill, .pred::after { font-size: 10px; }
+.matchup-header, .footer-brand-text .fb-tag, .chip { font-size: 11px; }
+.chip { font-size: 12px; }
+th { font-size: 11px; }
+.note, .g, .m-team-name, .week-range-banner, .sub, ul, .theme-desc, #status, .fm-copy { font-size: 13px; }
+.m-team-name { white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
+
+/* 5 · Stat tile grid lines work at any column count */
+.tiles { gap: 1px; background: var(--line); }
+.tile, .tile:last-child, .tile:nth-child(4n), .tile:nth-child(n+5) { border: none; }
+
+/* 6 · Buttons: theme/nav buttons keep their own look (no coral flash, no forced caps) */
+.nav-item, .theme-option { text-transform: none; letter-spacing: normal; }
+.nav-item:hover, .theme-option:hover { filter: none; }
+.nav-item:hover { transform: none; }
+.theme-option:hover { background: var(--bg-2); }
+
+/* 7 · Comparison table fits phones without sideways scroll */
+table { min-width: 0; }
+table .team-logo, table .team-logo-fallback { width: 26px; height: 26px; font-size: 10px; }
+
+/* 8 · Mobile nav: scrolls instead of overflowing; notch-safe; no iOS zoom */
+@media (max-width: 760px) {
+  .sidebar { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+  .nav { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-item { white-space: nowrap; flex-shrink: 0; }
+  select, .palette-input-wrap input[type="text"] { font-size: 16px; }
+}
+@media (max-width: 520px) {
+  .nav-item { padding: 7px 8px; font-size: 11px; }
+  .nav-item .dot { display: none; }
+  th, td { font-size: 12px; }
+}
+
+/* 9 · Footer safe area + reduced motion */
+.site-footer { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
+<noscript><p style="padding:16px;text-align:center">This tracker needs JavaScript enabled.</p></noscript>
 <div class="shell">
 
   <aside class="sidebar">
@@ -999,7 +1069,7 @@ select:focus-visible, button:focus-visible, input:focus-visible, a:focus-visible
 
         <div class="footer-credit">
           <div class="fc-line">
-            © <span class="fm-year">2025</span> <strong>Wilton Kim</strong>. All rights reserved.
+            © <span class="fm-year">2026</span> <strong>Wilton Kim</strong>. All rights reserved.
           </div>
           <div class="fc-line">
             Built and designed by <strong>Wilton Kim</strong>. Data powered by nflverse.
